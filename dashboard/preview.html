@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>X Trend Bot - 管理画面プレビュー</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+  <!-- ナビゲーション -->
+  <nav class="bg-gray-900 text-white">
+    <div class="max-w-5xl mx-auto px-4 py-3 flex items-center gap-6">
+      <span class="font-bold text-lg">X Trend Bot</span>
+      <a href="#dashboard" class="hover:text-blue-300 text-blue-400 cursor-pointer" onclick="showPage('dashboard')">ダッシュボード</a>
+      <a href="#users" class="hover:text-blue-300 cursor-pointer" onclick="showPage('users')">ユーザー</a>
+      <a href="#genres" class="hover:text-blue-300 cursor-pointer" onclick="showPage('genres')">ジャンル</a>
+      <a href="#history" class="hover:text-blue-300 cursor-pointer" onclick="showPage('history')">投稿履歴</a>
+    </div>
+  </nav>
+
+  <main class="max-w-5xl mx-auto px-4 py-6">
+
+    <!-- ========== ダッシュボード ========== -->
+    <div id="page-dashboard">
+      <h1 class="text-2xl font-bold mb-6">ダッシュボード</h1>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <div class="bg-white rounded-lg shadow p-5">
+          <div class="text-sm text-gray-500">監視ユーザー</div>
+          <div class="text-3xl font-bold mt-1">2</div>
+          <a href="#users" class="text-blue-500 text-sm hover:underline cursor-pointer" onclick="showPage('users')">管理する →</a>
+        </div>
+        <div class="bg-white rounded-lg shadow p-5">
+          <div class="text-sm text-gray-500">ジャンル</div>
+          <div class="text-3xl font-bold mt-1">3</div>
+          <a href="#genres" class="text-blue-500 text-sm hover:underline cursor-pointer" onclick="showPage('genres')">管理する →</a>
+        </div>
+        <div class="bg-white rounded-lg shadow p-5">
+          <div class="text-sm text-gray-500">投稿数</div>
+          <div class="text-3xl font-bold mt-1">0</div>
+          <a href="#history" class="text-blue-500 text-sm hover:underline cursor-pointer" onclick="showPage('history')">履歴を見る →</a>
+        </div>
+      </div>
+
+      <h2 class="text-lg font-bold mb-3">最近の投稿</h2>
+      <div class="bg-white rounded-lg shadow p-6 text-center text-gray-400">
+        まだ投稿がありません
+      </div>
+    </div>
+
+    <!-- ========== ユーザー管理 ========== -->
+    <div id="page-users" class="hidden">
+      <h1 class="text-2xl font-bold mb-6">監視ユーザー管理</h1>
+
+      <div class="bg-white rounded-lg shadow p-5 mb-6">
+        <h2 class="font-bold mb-3">ユーザーを追加</h2>
+        <div class="flex flex-wrap gap-3 items-end">
+          <div>
+            <label class="block text-sm text-gray-600 mb-1">ユーザー名</label>
+            <input type="text" placeholder="@username" class="border rounded px-3 py-2 text-sm w-44">
+          </div>
+          <div>
+            <label class="block text-sm text-gray-600 mb-1">表示名</label>
+            <input type="text" placeholder="表示名（任意）" class="border rounded px-3 py-2 text-sm w-44">
+          </div>
+          <div>
+            <label class="block text-sm text-gray-600 mb-1">ジャンル</label>
+            <select class="border rounded px-3 py-2 text-sm w-40">
+              <option>株式投資</option>
+              <option>仮想通貨</option>
+              <option>FX・為替</option>
+            </select>
+          </div>
+          <button class="bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700">追加</button>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow overflow-hidden">
+        <table class="w-full text-sm">
+          <thead class="bg-gray-50 text-left">
+            <tr>
+              <th class="px-4 py-3">ユーザー</th>
+              <th class="px-4 py-3">ジャンル</th>
+              <th class="px-4 py-3">状態</th>
+              <th class="px-4 py-3">操作</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y">
+            <tr>
+              <td class="px-4 py-3">
+                <div class="font-medium">日本経済新聞</div>
+                <div class="text-gray-400">@nikkei</div>
+              </td>
+              <td class="px-4 py-3">株式投資</td>
+              <td class="px-4 py-3">
+                <span class="bg-green-100 text-green-700 px-2 py-0.5 rounded text-xs">有効</span>
+              </td>
+              <td class="px-4 py-3 flex gap-2">
+                <button class="text-blue-500 hover:underline text-xs">無効にする</button>
+                <button class="text-red-500 hover:underline text-xs">削除</button>
+              </td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3">
+                <div class="font-medium">Bloomberg Japan</div>
+                <div class="text-gray-400">@BloombergJapan</div>
+              </td>
+              <td class="px-4 py-3">株式投資</td>
+              <td class="px-4 py-3">
+                <span class="bg-green-100 text-green-700 px-2 py-0.5 rounded text-xs">有効</span>
+              </td>
+              <td class="px-4 py-3 flex gap-2">
+                <button class="text-blue-500 hover:underline text-xs">無効にする</button>
+                <button class="text-red-500 hover:underline text-xs">削除</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========== ジャンル管理 ========== -->
+    <div id="page-genres" class="hidden">
+      <h1 class="text-2xl font-bold mb-6">ジャンル管理</h1>
+
+      <div class="bg-white rounded-lg shadow p-5 mb-6">
+        <h2 class="font-bold mb-3">ジャンルを追加</h2>
+        <div class="flex flex-wrap gap-3 items-end">
+          <div>
+            <label class="block text-sm text-gray-600 mb-1">ID（英数字）</label>
+            <input type="text" placeholder="例: realestate" class="border rounded px-3 py-2 text-sm w-36">
+          </div>
+          <div>
+            <label class="block text-sm text-gray-600 mb-1">名前</label>
+            <input type="text" placeholder="例: 不動産投資" class="border rounded px-3 py-2 text-sm w-40">
+          </div>
+          <div>
+            <label class="block text-sm text-gray-600 mb-1">説明</label>
+            <input type="text" placeholder="説明（任意）" class="border rounded px-3 py-2 text-sm w-56">
+          </div>
+          <button class="bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700">追加</button>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow overflow-hidden">
+        <table class="w-full text-sm">
+          <thead class="bg-gray-50 text-left">
+            <tr>
+              <th class="px-4 py-3">ID</th>
+              <th class="px-4 py-3">名前</th>
+              <th class="px-4 py-3">説明</th>
+              <th class="px-4 py-3">状態</th>
+              <th class="px-4 py-3">操作</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y">
+            <tr>
+              <td class="px-4 py-3 font-mono text-xs">stocks</td>
+              <td class="px-4 py-3 font-medium">株式投資</td>
+              <td class="px-4 py-3 text-gray-500">株式市場・個別銘柄に関する情報</td>
+              <td class="px-4 py-3">
+                <span class="bg-green-100 text-green-700 px-2 py-0.5 rounded text-xs">有効</span>
+              </td>
+              <td class="px-4 py-3 flex gap-2">
+                <button class="text-blue-500 hover:underline text-xs">無効にする</button>
+                <button class="text-red-500 hover:underline text-xs">削除</button>
+              </td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 font-mono text-xs">crypto</td>
+              <td class="px-4 py-3 font-medium">仮想通貨</td>
+              <td class="px-4 py-3 text-gray-500">ビットコイン・アルトコインなど暗号資産</td>
+              <td class="px-4 py-3">
+                <span class="bg-green-100 text-green-700 px-2 py-0.5 rounded text-xs">有効</span>
+              </td>
+              <td class="px-4 py-3 flex gap-2">
+                <button class="text-blue-500 hover:underline text-xs">無効にする</button>
+                <button class="text-red-500 hover:underline text-xs">削除</button>
+              </td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 font-mono text-xs">fx</td>
+              <td class="px-4 py-3 font-medium">FX・為替</td>
+              <td class="px-4 py-3 text-gray-500">為替相場・FXトレードに関する情報</td>
+              <td class="px-4 py-3">
+                <span class="bg-green-100 text-green-700 px-2 py-0.5 rounded text-xs">有効</span>
+              </td>
+              <td class="px-4 py-3 flex gap-2">
+                <button class="text-blue-500 hover:underline text-xs">無効にする</button>
+                <button class="text-red-500 hover:underline text-xs">削除</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========== 投稿履歴 ========== -->
+    <div id="page-history" class="hidden">
+      <h1 class="text-2xl font-bold mb-6">投稿履歴</h1>
+      <div class="bg-white rounded-lg shadow p-6 text-center text-gray-400">
+        まだ投稿がありません
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    function showPage(page) {
+      document.querySelectorAll('[id^="page-"]').forEach(el => el.classList.add('hidden'));
+      document.getElementById('page-' + page).classList.remove('hidden');
+      document.querySelectorAll('nav a').forEach(a => a.classList.remove('text-blue-400'));
+      document.querySelector('nav a[href="#' + page + '"]').classList.add('text-blue-400');
+    }
+  </script>
+</body>
+</html>
