@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>X Trend Bot - ダッシュボード</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .step-active { background: #1d4ed8; color: #fff; }
+    .step-done { background: #16a34a; color: #fff; }
+    .step-inactive { background: #e5e7eb; color: #6b7280; }
+    .x-post { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    .fade-in { animation: fadeIn 0.3s ease-in; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+  <!-- ヘッダー -->
+  <header class="bg-black text-white">
+    <div class="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <svg class="w-7 h-7" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        <span class="font-bold text-lg">Trend Bot</span>
+      </div>
+      <div class="text-sm text-gray-400">管理ダッシュボード</div>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-4 py-6">
+
+    <!-- ======= ジャンル選択 ======= -->
+    <div class="bg-white rounded-xl shadow-sm p-5 mb-6">
+      <div class="flex flex-wrap items-center gap-4">
+        <div>
+          <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">ジャンル</label>
+          <select id="genre-select" onchange="switchGenre(this.value)" class="border border-gray-300 rounded-lg px-4 py-2.5 text-sm font-medium bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-w-[180px]">
+            <option value="stocks">株式投資</option>
+            <option value="crypto">仮想通貨</option>
+            <option value="fx">FX・為替</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">期間</label>
+          <select class="border border-gray-300 rounded-lg px-4 py-2.5 text-sm font-medium bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            <option>直近1時間</option>
+            <option>直近3時間</option>
+            <option>直近24時間</option>
+          </select>
+        </div>
+        <div class="ml-auto self-end">
+          <button onclick="runAnalysis()" class="bg-blue-600 text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-blue-700 transition flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 3l14 9-14 9V3z"/></svg>
+            分析を実行
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======= ステップインジケーター ======= -->
+    <div class="flex items-center gap-2 mb-6">
+      <button onclick="goToStep(1)" id="step-btn-1" class="step-active px-4 py-2 rounded-full text-sm font-medium transition cursor-pointer">
+        1. リサーチ
+      </button>
+      <div class="w-8 h-0.5 bg-gray-300"></div>
+      <button onclick="goToStep(2)" id="step-btn-2" class="step-inactive px-4 py-2 rounded-full text-sm font-medium transition cursor-pointer">
+        2. 分析結果
+      </button>
+      <div class="w-8 h-0.5 bg-gray-300"></div>
+      <button onclick="goToStep(3)" id="step-btn-3" class="step-inactive px-4 py-2 rounded-full text-sm font-medium transition cursor-pointer">
+        3. 投稿プレビュー
+      </button>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- STEP 1: リサーチ                            -->
+    <!-- ========================================== -->
+    <div id="step-1" class="fade-in">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-bold text-gray-800">リサーチ結果</h2>
+        <span id="research-genre-label" class="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-medium">株式投資</span>
+      </div>
+
+      <!-- ソース: @nikkei -->
+      <div class="bg-white rounded-xl shadow-sm mb-4 overflow-hidden">
+        <div class="px-5 py-3 bg-gray-50 border-b flex items-center gap-3">
+          <div class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center text-white text-xs font-bold">N</div>
+          <div>
+            <div class="font-bold text-sm">日本経済新聞</div>
+            <div class="text-xs text-gray-400">@nikkei</div>
+          </div>
+          <span class="ml-auto text-xs text-gray-400">5件取得</span>
+        </div>
+        <div class="divide-y" id="nikkei-posts">
+          <div class="px-5 py-3 hover:bg-gray-50 transition">
+            <p class="text-sm text-gray-800">日経平均株価は前日比320円高の3万9280円で取引を終えた。半導体関連銘柄が買いを集め、全体を押し上げた。</p>
+            <div class="flex gap-4 mt-2 text-xs text-gray-400">
+              <span>2025/02/11 14:30</span>
+              <span>♻ 245</span>
+              <span>♡ 1,203</span>
+            </div>
+          </div>
+          <div class="px-5 py-3 hover:bg-gray-50 transition">
+            <p class="text-sm text-gray-800">トヨタ自動車、2025年3月期の連結純利益予想を上方修正。円安効果と北米販売好調が寄与。</p>
+            <div class="flex gap-4 mt-2 text-xs text-gray-400">
+              <span>2025/02/11 13:15</span>
+              <span>♻ 189</span>
+              <span>♡ 876</span>
+            </div>
+          </div>
+          <div class="px-5 py-3 hover:bg-gray-50 transition">
+            <p class="text-sm text-gray-800">日銀、次回会合で追加利上げ議論へ。市場は0.5%への引き上げを織り込み始める。</p>
+            <div class="flex gap-4 mt-2 text-xs text-gray-400">
+              <span>2025/02/11 11:45</span>
+              <span>♻ 412</span>
+              <span>♡ 2,045</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ソース: @BloombergJapan -->
+      <div class="bg-white rounded-xl shadow-sm mb-4 overflow-hidden">
+        <div class="px-5 py-3 bg-gray-50 border-b flex items-center gap-3">
+          <div class="w-8 h-8 bg-purple-700 rounded-full flex items-center justify-center text-white text-xs font-bold">B</div>
+          <div>
+            <div class="font-bold text-sm">Bloomberg Japan</div>
+            <div class="text-xs text-gray-400">@BloombergJapan</div>
+          </div>
+          <span class="ml-auto text-xs text-gray-400">5件取得</span>
+        </div>
+        <div class="divide-y" id="bloomberg-posts">
+          <div class="px-5 py-3 hover:bg-gray-50 transition">
+            <p class="text-sm text-gray-800">米FRB、利下げ見送りを示唆。パウエル議長「インフレは依然として高水準」と発言。</p>
+            <div class="flex gap-4 mt-2 text-xs text-gray-400">
+              <span>2025/02/11 12:00</span>
+              <span>♻ 567</span>
+              <span>♡ 3,421</span>
+            </div>
+          </div>
+          <div class="px-5 py-3 hover:bg-gray-50 transition">
+            <p class="text-sm text-gray-800">ソフトバンクG、AI投資ファンド第2弾を計画。規模は最大500億ドルか。</p>
+            <div class="flex gap-4 mt-2 text-xs text-gray-400">
+              <span>2025/02/11 10:30</span>
+              <span>♻ 334</span>
+              <span>♡ 1,876</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-end mt-4">
+        <button onclick="goToStep(2)" class="bg-blue-600 text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-blue-700 transition flex items-center gap-2">
+          分析結果を見る
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- STEP 2: 分析結果                            -->
+    <!-- ========================================== -->
+    <div id="step-2" class="hidden fade-in">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-bold text-gray-800">AI 分析結果</h2>
+        <span class="text-sm bg-purple-100 text-purple-700 px-3 py-1 rounded-full font-medium flex items-center gap-1">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
+          Claude Sonnet 4.5
+        </span>
+      </div>
+
+      <!-- サマリー -->
+      <div class="bg-white rounded-xl shadow-sm p-6 mb-4">
+        <h3 class="font-bold text-gray-700 mb-3 flex items-center gap-2">
+          <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/></svg>
+          トレンドサマリー
+        </h3>
+        <p class="text-sm text-gray-700 leading-relaxed">
+          本日の株式市場は<strong>半導体セクター主導の上昇</strong>が顕著。日経平均は320円高で引け、特にAI関連需要を背景とした半導体銘柄への資金流入が目立つ。
+          一方、<strong>日銀の追加利上げ観測</strong>が浮上しており、金融セクターにも注目が集まっている。
+          海外では<strong>米FRBの利下げ見送り示唆</strong>がドル高要因となり、円安がトヨタなど輸出企業の業績上方修正を後押し。
+        </p>
+      </div>
+
+      <!-- キーポイント -->
+      <div class="bg-white rounded-xl shadow-sm p-6 mb-4">
+        <h3 class="font-bold text-gray-700 mb-3">キーポイント</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+            <div class="text-xs font-bold text-green-600 uppercase tracking-wide mb-1">ポジティブ</div>
+            <p class="text-sm text-gray-700">半導体関連が牽引し日経平均320円高。トヨタ業績上方修正。</p>
+          </div>
+          <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <div class="text-xs font-bold text-yellow-600 uppercase tracking-wide mb-1">注目</div>
+            <p class="text-sm text-gray-700">日銀追加利上げ議論。ソフトバンクG新AIファンド計画。</p>
+          </div>
+          <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+            <div class="text-xs font-bold text-yellow-600 uppercase tracking-wide mb-1">リスク</div>
+            <p class="text-sm text-gray-700">米FRB利下げ見送り示唆。インフレ長期化懸念。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 生成されたツイート候補 -->
+      <div class="bg-white rounded-xl shadow-sm p-6 mb-4">
+        <h3 class="font-bold text-gray-700 mb-3">生成ツイート（候補）</h3>
+        <div class="bg-gray-50 border rounded-lg p-4">
+          <p class="text-sm text-gray-800 leading-relaxed" id="generated-tweet">📈 日経平均320円高！半導体銘柄が市場を牽引🔥 トヨタも業績上方修正で好調💪 一方、日銀の追加利上げ観測＆米FRB利下げ見送りでマーケットは慎重モード🤔 明日以降の展開に注目👀 #株式投資 #日経平均 #投資</p>
+          <div class="flex items-center justify-between mt-3">
+            <span class="text-xs text-gray-400" id="tweet-char-count">138 / 280文字</span>
+            <div class="flex gap-2">
+              <button onclick="goToStep(3)" class="bg-blue-600 text-white px-4 py-1.5 rounded text-xs font-medium hover:bg-blue-700 transition">この内容で投稿プレビュー →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-between mt-4">
+        <button onclick="goToStep(1)" class="text-gray-500 px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-200 transition flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+          リサーチに戻る
+        </button>
+        <button onclick="goToStep(3)" class="bg-blue-600 text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-blue-700 transition flex items-center gap-2">
+          投稿プレビューへ
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- STEP 3: 投稿プレビュー (Xっぽい見た目)       -->
+    <!-- ========================================== -->
+    <div id="step-3" class="hidden fade-in">
+      <h2 class="text-xl font-bold text-gray-800 mb-4">投稿プレビュー</h2>
+
+      <!-- X Post Mockup -->
+      <div class="max-w-lg mx-auto">
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden x-post">
+          <!-- Post Header -->
+          <div class="px-4 pt-4 flex items-start gap-3">
+            <div class="w-10 h-10 bg-black rounded-full flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-1">
+                <span class="font-bold text-[15px] text-gray-900">X Trend Bot</span>
+                <svg class="w-4 h-4 text-blue-500" viewBox="0 0 24 24" fill="currentColor"><path d="M22.25 12c0-1.43-.88-2.67-2.19-3.34.46-1.39.2-2.9-.81-3.91s-2.52-1.27-3.91-.81c-.66-1.31-1.91-2.19-3.34-2.19s-2.67.88-3.34 2.19c-1.39-.46-2.9-.2-3.91.81s-1.27 2.52-.81 3.91C2.63 9.33 1.75 10.57 1.75 12s.88 2.67 2.19 3.34c-.46 1.39-.2 2.9.81 3.91s2.52 1.27 3.91.81c.66 1.31 1.91 2.19 3.34 2.19s2.67-.88 3.34-2.19c1.39.46 2.9.2 3.91-.81s1.27-2.52.81-3.91c1.31-.67 2.19-1.91 2.19-3.34zm-11.06 4.29l-3.18-3.18 1.06-1.06 2.12 2.12 5.3-5.3 1.06 1.06-6.36 6.36z"/></svg>
+              </div>
+              <div class="text-[13px] text-gray-500">@x_trend_bot</div>
+            </div>
+            <svg class="w-5 h-5 text-gray-400 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="6" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="18" r="1.5"/></svg>
+          </div>
+
+          <!-- Post Content -->
+          <div class="px-4 py-3">
+            <p class="text-[15px] leading-relaxed text-gray-900" id="preview-tweet-text">
+              📈 日経平均320円高！半導体銘柄が市場を牽引🔥 トヨタも業績上方修正で好調💪 一方、日銀の追加利上げ観測＆米FRB利下げ見送りでマーケットは慎重モード🤔 明日以降の展開に注目👀 <span class="text-blue-500">#株式投資</span> <span class="text-blue-500">#日経平均</span> <span class="text-blue-500">#投資</span>
+            </p>
+          </div>
+
+          <!-- Post Meta -->
+          <div class="px-4 pb-3">
+            <div class="text-[13px] text-gray-500">
+              午後3:00 · 2025年2月11日 · <span class="text-gray-900 font-medium">X Trend Bot</span>から
+            </div>
+          </div>
+
+          <!-- Divider -->
+          <div class="border-t border-gray-200"></div>
+
+          <!-- Engagement Stats -->
+          <div class="px-4 py-2.5 flex gap-6 text-[13px] text-gray-500 border-b border-gray-200">
+            <span><strong class="text-gray-900">—</strong> リポスト</span>
+            <span><strong class="text-gray-900">—</strong> いいね</span>
+            <span><strong class="text-gray-900">—</strong> 表示</span>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="px-4 py-2 flex justify-around">
+            <button class="text-gray-500 hover:text-blue-500 p-2 rounded-full hover:bg-blue-50 transition">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z"/></svg>
+            </button>
+            <button class="text-gray-500 hover:text-green-500 p-2 rounded-full hover:bg-green-50 transition">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12c0-1.232-.046-2.453-.138-3.662a4.006 4.006 0 00-3.7-3.7 48.678 48.678 0 00-7.324 0 4.006 4.006 0 00-3.7 3.7c-.017.22-.032.441-.046.662M19.5 12l3-3m-3 3l-3-3m-12 3c0 1.232.046 2.453.138 3.662a4.006 4.006 0 003.7 3.7 48.656 48.656 0 007.324 0 4.006 4.006 0 003.7-3.7c.017-.22.032-.441.046-.662M4.5 12l3 3m-3-3l-3 3"/></svg>
+            </button>
+            <button class="text-gray-500 hover:text-pink-500 p-2 rounded-full hover:bg-pink-50 transition">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/></svg>
+            </button>
+            <button class="text-gray-500 hover:text-blue-500 p-2 rounded-full hover:bg-blue-50 transition">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- 投稿アクション -->
+        <div class="mt-6 flex gap-3 justify-center">
+          <button class="bg-black text-white px-8 py-3 rounded-full text-sm font-bold hover:bg-gray-800 transition flex items-center gap-2">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            投稿する
+          </button>
+          <button onclick="goToStep(2)" class="border border-gray-300 text-gray-700 px-6 py-3 rounded-full text-sm font-medium hover:bg-gray-100 transition">
+            修正する
+          </button>
+        </div>
+
+        <!-- ステータス表示 -->
+        <div class="mt-4 text-center">
+          <span class="inline-flex items-center gap-1.5 text-xs text-gray-400">
+            <span class="w-2 h-2 bg-yellow-400 rounded-full"></span>
+            DRY_RUN モード — 実際には投稿されません
+          </span>
+        </div>
+      </div>
+
+      <div class="flex justify-start mt-8">
+        <button onclick="goToStep(2)" class="text-gray-500 px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-200 transition flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+          分析に戻る
+        </button>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- フッター -->
+  <footer class="max-w-4xl mx-auto px-4 py-8 mt-8">
+    <div class="text-center text-xs text-gray-400">
+      X Trend Bot — Powered by Claude AI
+    </div>
+  </footer>
+
+  <script>
+    let currentStep = 1;
+
+    // サンプルデータ（ジャンル別）
+    const sampleData = {
+      stocks: {
+        label: '株式投資',
+        sources: [
+          {
+            name: '日本経済新聞', handle: '@nikkei', avatar: 'N', color: 'bg-gray-800', count: 5,
+            posts: [
+              { text: '日経平均株価は前日比320円高の3万9280円で取引を終えた。半導体関連銘柄が買いを集め、全体を押し上げた。', time: '2025/02/11 14:30', rt: 245, like: '1,203' },
+              { text: 'トヨタ自動車、2025年3月期の連結純利益予想を上方修正。円安効果と北米販売好調が寄与。', time: '2025/02/11 13:15', rt: 189, like: '876' },
+              { text: '日銀、次回会合で追加利上げ議論へ。市場は0.5%への引き上げを織り込み始める。', time: '2025/02/11 11:45', rt: 412, like: '2,045' }
+            ]
+          },
+          {
+            name: 'Bloomberg Japan', handle: '@BloombergJapan', avatar: 'B', color: 'bg-purple-700', count: 5,
+            posts: [
+              { text: '米FRB、利下げ見送りを示唆。パウエル議長「インフレは依然として高水準」と発言。', time: '2025/02/11 12:00', rt: 567, like: '3,421' },
+              { text: 'ソフトバンクG、AI投資ファンド第2弾を計画。規模は最大500億ドルか。', time: '2025/02/11 10:30', rt: 334, like: '1,876' }
+            ]
+          }
+        ],
+        analysis: {
+          summary: '本日の株式市場は<strong>半導体セクター主導の上昇</strong>が顕著。日経平均は320円高で引け、特にAI関連需要を背景とした半導体銘柄への資金流入が目立つ。一方、<strong>日銀の追加利上げ観測</strong>が浮上しており、金融セクターにも注目が集まっている。海外では<strong>米FRBの利下げ見送り示唆</strong>がドル高要因となり、円安がトヨタなど輸出企業の業績上方修正を後押し。',
+          positive: '半導体関連が牽引し日経平均320円高。トヨタ業績上方修正。',
+          watch: '日銀追加利上げ議論。ソフトバンクG新AIファンド計画。',
+          risk: '米FRB利下げ見送り示唆。インフレ長期化懸念。'
+        },
+        tweet: '📈 日経平均320円高！半導体銘柄が市場を牽引🔥 トヨタも業績上方修正で好調💪 一方、日銀の追加利上げ観測＆米FRB利下げ見送りでマーケットは慎重モード🤔 明日以降の展開に注目👀 #株式投資 #日経平均 #投資',
+        tweetHtml: '📈 日経平均320円高！半導体銘柄が市場を牽引🔥 トヨタも業績上方修正で好調💪 一方、日銀の追加利上げ観測＆米FRB利下げ見送りでマーケットは慎重モード🤔 明日以降の展開に注目👀 <span class="text-blue-500">#株式投資</span> <span class="text-blue-500">#日経平均</span> <span class="text-blue-500">#投資</span>'
+      },
+      crypto: {
+        label: '仮想通貨',
+        sources: [
+          {
+            name: 'CoinPost', handle: '@CoinPost_JP', avatar: 'C', color: 'bg-orange-600', count: 5,
+            posts: [
+              { text: 'ビットコインが10万ドルを突破。機関投資家の買いが継続し、ETF経由の資金流入が加速。', time: '2025/02/11 15:00', rt: 890, like: '5,432' },
+              { text: 'イーサリアム、次期大型アップグレード「Pectra」のテストネット展開を完了。本番適用は3月予定。', time: '2025/02/11 13:00', rt: 423, like: '2,100' },
+              { text: 'SEC、新たな暗号資産ETFの審査を開始。ソラナETFの承認可否に注目集まる。', time: '2025/02/11 11:00', rt: 678, like: '3,876' }
+            ]
+          }
+        ],
+        analysis: {
+          summary: 'ビットコインが<strong>10万ドルの大台を突破</strong>し、暗号資産市場全体が活況。ETF経由の機関投資家資金が引き続き流入している。イーサリアムは<strong>Pectraアップグレード</strong>が順調に進行。規制面では<strong>SECのソラナETF審査開始</strong>が注目材料。',
+          positive: 'BTC 10万ドル突破。機関投資家の資金流入が加速。',
+          watch: 'ETH Pectraアップグレード3月予定。ソラナETF審査開始。',
+          risk: '急騰後の利確売り圧力。規制強化リスク。'
+        },
+        tweet: '🚀 BTC 10万ドル突破！機関投資家のETF買いが止まらない💰 ETHもPectraアップグレード控えて期待感↑ さらにSECがソラナETF審査開始で市場は熱狂中🔥 次のターゲットは？👀 #仮想通貨 #ビットコイン #crypto',
+        tweetHtml: '🚀 BTC 10万ドル突破！機関投資家のETF買いが止まらない💰 ETHもPectraアップグレード控えて期待感↑ さらにSECがソラナETF審査開始で市場は熱狂中🔥 次のターゲットは？👀 <span class="text-blue-500">#仮想通貨</span> <span class="text-blue-500">#ビットコイン</span> <span class="text-blue-500">#crypto</span>'
+      },
+      fx: {
+        label: 'FX・為替',
+        sources: [
+          {
+            name: 'ロイター', handle: '@ReutersJapan', avatar: 'R', color: 'bg-blue-800', count: 5,
+            posts: [
+              { text: 'ドル円、154円台半ばで推移。米長期金利上昇がドルを下支え。', time: '2025/02/11 14:00', rt: 312, like: '1,543' },
+              { text: '欧州中央銀行（ECB）、3月の追加利下げを示唆。ユーロ安が進行。', time: '2025/02/11 12:30', rt: 234, like: '987' },
+              { text: '豪ドル、中国の景気刺激策発表を受けて急伸。対円で100円台を回復。', time: '2025/02/11 10:00', rt: 156, like: '654' }
+            ]
+          }
+        ],
+        analysis: {
+          summary: '為替市場は<strong>ドル高基調が継続</strong>。米長期金利の上昇を背景にドル円は154円台で推移。欧州では<strong>ECBの追加利下げ示唆</strong>でユーロが売られる展開。一方、<strong>中国の景気刺激策</strong>を受けて豪ドルが対円で急伸し100円台を回復。',
+          positive: '豪ドル急伸、対円100円台回復。中国景気刺激策が追い風。',
+          watch: 'ドル円154円台。日銀利上げ観測 vs 米金利高のせめぎ合い。',
+          risk: 'ECB追加利下げでユーロ安進行。新興国通貨にも波及か。'
+        },
+        tweet: '💱 ドル円154円台で攻防中！米金利高でドル強し🇺🇸 ECBは利下げ示唆でユーロ安に⬇️ 一方、中国の景気刺激策で豪ドルが急伸📈 日銀の次の一手に全注目👀 #FX #為替 #ドル円',
+        tweetHtml: '💱 ドル円154円台で攻防中！米金利高でドル強し🇺🇸 ECBは利下げ示唆でユーロ安に⬇️ 一方、中国の景気刺激策で豪ドルが急伸📈 日銀の次の一手に全注目👀 <span class="text-blue-500">#FX</span> <span class="text-blue-500">#為替</span> <span class="text-blue-500">#ドル円</span>'
+      }
+    };
+
+    function goToStep(step) {
+      document.querySelectorAll('[id^="step-"]:not([id^="step-btn"])').forEach(el => el.classList.add('hidden'));
+      document.getElementById('step-' + step).classList.remove('hidden');
+      currentStep = step;
+      updateStepButtons();
+    }
+
+    function updateStepButtons() {
+      for (let i = 1; i <= 3; i++) {
+        const btn = document.getElementById('step-btn-' + i);
+        btn.className = btn.className.replace(/step-\w+/, '');
+        if (i < currentStep) btn.classList.add('step-done');
+        else if (i === currentStep) btn.classList.add('step-active');
+        else btn.classList.add('step-inactive');
+      }
+    }
+
+    function switchGenre(genre) {
+      const data = sampleData[genre];
+      if (!data) return;
+
+      // リサーチページ更新
+      document.getElementById('research-genre-label').textContent = data.label;
+
+      // ソースカード更新
+      const step1 = document.getElementById('step-1');
+      const cards = step1.querySelectorAll('.bg-white.rounded-xl.shadow-sm.mb-4');
+      cards.forEach(c => c.remove());
+
+      const nextBtn = step1.querySelector('.flex.justify-end');
+      data.sources.forEach(src => {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-xl shadow-sm mb-4 overflow-hidden';
+        let postsHtml = src.posts.map(p => `
+          <div class="px-5 py-3 hover:bg-gray-50 transition">
+            <p class="text-sm text-gray-800">${p.text}</p>
+            <div class="flex gap-4 mt-2 text-xs text-gray-400">
+              <span>${p.time}</span><span>♻ ${p.rt}</span><span>♡ ${p.like}</span>
+            </div>
+          </div>
+        `).join('');
+        card.innerHTML = `
+          <div class="px-5 py-3 bg-gray-50 border-b flex items-center gap-3">
+            <div class="w-8 h-8 ${src.color} rounded-full flex items-center justify-center text-white text-xs font-bold">${src.avatar}</div>
+            <div><div class="font-bold text-sm">${src.name}</div><div class="text-xs text-gray-400">${src.handle}</div></div>
+            <span class="ml-auto text-xs text-gray-400">${src.count}件取得</span>
+          </div>
+          <div class="divide-y">${postsHtml}</div>
+        `;
+        step1.insertBefore(card, nextBtn);
+      });
+
+      // 分析ページ更新
+      const a = data.analysis;
+      document.querySelector('#step-2 .bg-white:nth-of-type(1) p').innerHTML = a.summary;
+      const keypoints = document.querySelectorAll('#step-2 .grid > div');
+      keypoints[0].querySelector('p').textContent = a.positive;
+      keypoints[1].querySelector('p').textContent = a.watch;
+      keypoints[2].querySelector('p').textContent = a.risk;
+      document.getElementById('generated-tweet').textContent = data.tweet;
+      document.getElementById('tweet-char-count').textContent = data.tweet.length + ' / 280文字';
+
+      // プレビュー更新
+      document.getElementById('preview-tweet-text').innerHTML = data.tweetHtml;
+
+      // ステップ1に戻す
+      goToStep(1);
+    }
+
+    function runAnalysis() {
+      // 分析実行のシミュレーション
+      const btn = event.target.closest('button');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg> 分析中...';
+      btn.disabled = true;
+      btn.classList.add('opacity-70');
+
+      setTimeout(() => {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        btn.classList.remove('opacity-70');
+        goToStep(1);
+      }, 1500);
+    }
+  </script>
+
+</body>
+</html>
