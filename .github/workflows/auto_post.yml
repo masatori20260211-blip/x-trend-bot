@@ -29,6 +29,7 @@ jobs:
           API_SECRET: ${{ secrets.API_SECRET }}
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
           ACCESS_SECRET: ${{ secrets.ACCESS_SECRET }}
-          MAX_TRENDS_TO_POST: '5'
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          TWEETS_PER_USER: '5'
           DRY_RUN: 'false'
         run: python -m src.main
